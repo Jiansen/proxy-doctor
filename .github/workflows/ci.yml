@@ -11,11 +11,15 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.12"]
+        include:
+          - python-version: "3.9"
+            extras: "dev"
+          - python-version: "3.12"
+            extras: "dev,mcp"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install -e ".[dev,mcp]"
+      - run: pip install -e ".[${{ matrix.extras }}]"
       - run: python -m pytest tests/ -v
