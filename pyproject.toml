@@ -16,7 +16,6 @@ classifiers = [
     "Environment :: Console",
     "Environment :: MacOS X",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: MacOS",
     "Programming Language :: Python :: 3",
     "Topic :: Software Development :: Quality Assurance",
