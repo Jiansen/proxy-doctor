@@ -1,4 +1,15 @@
-# proxy-doctor
+<p align="center">
+  <img src="assets/logo.svg" width="120" alt="proxy-doctor logo">
+</p>
+
+<h1 align="center">proxy-doctor</h1>
+
+<p align="center">
+  <a href="https://pypi.org/project/proxy-doctor/"><img src="https://img.shields.io/pypi/v/proxy-doctor" alt="PyPI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/Jiansen/proxy-doctor" alt="License"></a>
+  <img src="https://img.shields.io/badge/platform-macOS-blue" alt="Platform">
+  <img src="https://img.shields.io/badge/python-%3E%3D3.9-blue" alt="Python">
+</p>
 
 **Diagnose proxy misconfigurations that break AI coding tools.**
 
@@ -169,3 +180,5 @@ make lint
 ## License
 
 MIT
+
+<!-- mcp-name: io.github.Jiansen/proxy-doctor -->

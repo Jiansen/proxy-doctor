@@ -86,7 +86,7 @@ class Report:
     evidence: LayerResults
     editor: str
     platform: str
-    version: str = "0.1.0"
+    version: str = "0.1.1"
 
     def to_dict(self) -> dict[str, Any]:
         return {

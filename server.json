@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Jiansen/proxy-doctor",
+  "title": "Proxy Doctor",
+  "description": "Diagnose proxy misconfigurations that break AI coding tools (Cursor, VS Code, Windsurf). Checks 5 layers: system proxy, residual values, port health, editor config, and GUI environment variables. Returns structured diagnosis with ranked remediation steps.",
+  "repository": {
+    "url": "https://github.com/Jiansen/proxy-doctor",
+    "source": "github"
+  },
+  "version": "0.1.1",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "proxy-doctor",
+      "version": "0.1.1",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}

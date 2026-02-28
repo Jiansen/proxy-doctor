@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="g" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0EA5E9"/>
+      <stop offset="1" stop-color="#10B981"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Diagnostic scope (circle) -->
+  <circle cx="256" cy="256" r="196" stroke="url(#g)" stroke-width="24"/>
+
+  <!-- ECG heartbeat line through the scope -->
+  <polyline
+    points="60,272 150,272 190,272 218,168 244,368 268,208 292,272 360,272 452,272"
+    stroke="url(#g)" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
