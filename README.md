@@ -89,6 +89,26 @@ Your AI agent can then call:
 - `list_fixes(editor="cursor")` — just the recommended fixes
 - `supported_editors()` — list available editors
 
+### Daemon Mode (v0.2+)
+
+Run proxy-doctor as a persistent background service with automatic health monitoring:
+
+```bash
+# Start daemon (installs as macOS launchd service)
+proxy-doctor daemon start
+
+# Check daemon status
+proxy-doctor daemon status
+
+# Stop daemon
+proxy-doctor daemon stop
+
+# Check for updates
+proxy-doctor update
+```
+
+The daemon runs every 5 minutes, compares results with the previous check, and sends a macOS notification when status changes (e.g. healthy → unhealthy).
+
 ### Menu Bar (SwiftBar)
 
 ```bash
@@ -127,7 +147,7 @@ Shows a green/red/orange indicator in your menu bar with one-click diagnosis.
 ### Healthy
 
 ```
-proxy-doctor v0.1.0
+proxy-doctor v0.2.0
 Editor: cursor | Platform: Darwin
 
 Status: HEALTHY
@@ -160,6 +180,35 @@ proxy-doctor identifies three failure patterns:
 - **macOS**: Full support (system proxy, launchctl, networksetup)
 - **Linux**: Partial (editor config + environment variables; no networksetup)
 - **Windows**: Not yet supported
+
+## Permissions
+
+proxy-doctor is designed to be safe and transparent:
+
+| Access | What | Why |
+|--------|------|-----|
+| **Reads** | System proxy settings, editor config files, launchctl env vars, local port status | Core diagnostic functionality |
+| **Writes** | `~/.proxy-doctor/` only (cache, logs, update state) | Daemon state persistence |
+| **Network** | `pypi.org` (version check only) | Auto-update feature |
+| **Does NOT** | Modify proxy settings, change editor config, send telemetry, access credentials | By design — read-only diagnosis |
+
+## Feedback
+
+Found a bug? Have a suggestion? Diagnosis didn't help?
+
+- **GitHub Issues**: https://github.com/Jiansen/proxy-doctor/issues/new
+- **For AI agents**: The JSON output includes a `feedback.report_issue` URL — include the full JSON when filing issues.
+
+For AI agents providing feedback programmatically (zero dependencies):
+
+```bash
+# Create a GitHub issue via CLI (requires gh)
+proxy-doctor check | gh issue create --repo Jiansen/proxy-doctor \
+  --title "Diagnosis report: [describe issue]" --body-file -
+
+# Or simply: copy the JSON output into a new issue at
+# https://github.com/Jiansen/proxy-doctor/issues/new
+```
 
 ## Development
 

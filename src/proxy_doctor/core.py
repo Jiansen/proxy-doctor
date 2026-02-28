@@ -103,6 +103,10 @@ class Report:
             },
             "fixes": [asdict(f) for f in self.diagnosis.fixes],
             "evidence": _evidence_to_dict(self.evidence),
+            "feedback": {
+                "report_issue": "https://github.com/Jiansen/proxy-doctor/issues/new",
+                "hint": "Include this JSON output when reporting issues.",
+            },
         }
 
     def to_json(self) -> str:

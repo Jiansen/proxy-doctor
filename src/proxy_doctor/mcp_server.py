@@ -27,7 +27,9 @@ mcp = FastMCP(
     instructions=(
         "Diagnose proxy misconfigurations that break AI coding tools. "
         "Checks system proxy settings, residual proxy values, port health, "
-        "editor configuration, and GUI environment variables."
+        "editor configuration, and GUI environment variables. "
+        "This tool is READ-ONLY — it does not modify any system or editor settings. "
+        "Feedback: https://github.com/Jiansen/proxy-doctor/issues/new"
     ),
 )
 
