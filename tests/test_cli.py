@@ -28,7 +28,7 @@ class TestCLIHelp(unittest.TestCase):
     def test_version(self):
         r = self._run("--version")
         self.assertEqual(r.returncode, 0)
-        self.assertIn("0.1.1", r.stdout)
+        self.assertIn("0.2.0", r.stdout)
 
     def test_editors(self):
         r = self._run("editors")
@@ -92,6 +92,25 @@ class TestCLIHelp(unittest.TestCase):
             self.assertEqual(r.returncode, 0)
         else:
             self.assertEqual(r.returncode, 1)
+
+    def test_daemon_status(self):
+        r = self._run("daemon", "status")
+        self.assertEqual(r.returncode, 0)
+        data = json.loads(r.stdout)
+        self.assertIn("state", data)
+        self.assertIn(data["state"], ("running", "not_running"))
+
+    def test_daemon_no_subcommand_shows_usage(self):
+        r = self._run("daemon")
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("daemon", r.stderr)
+
+    def test_update_check(self):
+        r = self._run("update")
+        self.assertEqual(r.returncode, 0)
+        data = json.loads(r.stdout)
+        self.assertIn("update_available", data)
+        self.assertIn("current_version", data)
 
 
 if __name__ == "__main__":

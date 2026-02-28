@@ -4,6 +4,8 @@ Usage:
     proxy-doctor check [--json | --human] [--editor NAME]
     proxy-doctor fix [--editor NAME]
     proxy-doctor editors
+    proxy-doctor daemon {start|stop|status}
+    proxy-doctor update [--install]
 """
 
 from __future__ import annotations
@@ -47,6 +49,20 @@ def build_parser() -> argparse.ArgumentParser:
 
     # editors
     sub.add_parser("editors", help="List supported editors")
+
+    # daemon
+    p_daemon = sub.add_parser("daemon", help="Manage background daemon")
+    daemon_sub = p_daemon.add_subparsers(dest="daemon_action")
+    d_start = daemon_sub.add_parser("start", help="Install and start daemon")
+    d_start.add_argument("--interval", type=int, default=300,
+                         help="Check interval in seconds (default: 300)")
+    daemon_sub.add_parser("stop", help="Stop and uninstall daemon")
+    daemon_sub.add_parser("status", help="Check daemon status")
+
+    # update
+    p_update = sub.add_parser("update", help="Check for updates")
+    p_update.add_argument("--install", action="store_true",
+                          help="Install update if available")
 
     return parser
 
@@ -102,6 +118,65 @@ def cmd_editors(_args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_daemon(args: argparse.Namespace) -> int:
+    from proxy_doctor.daemon import daemon_status, install_daemon, uninstall_daemon
+
+    if args.daemon_action == "start":
+        ok, msg = install_daemon(interval=args.interval)
+        print(json.dumps({"success": ok, "message": msg}, indent=2))
+        return 0 if ok else 1
+    elif args.daemon_action == "stop":
+        ok, msg = uninstall_daemon()
+        print(json.dumps({"success": ok, "message": msg}, indent=2))
+        return 0
+    elif args.daemon_action == "status":
+        status = daemon_status()
+        print(json.dumps(status, indent=2))
+        return 0
+    else:
+        print("Usage: proxy-doctor daemon {start|stop|status}", file=sys.stderr)
+        return 2
+
+
+def cmd_update(args: argparse.Namespace) -> int:
+    from proxy_doctor.updater import check_for_update, perform_update
+
+    result = check_for_update(__version__)
+    if not result.available:
+        out = {
+            "update_available": False,
+            "current_version": result.current_version,
+            "latest_version": result.latest_version,
+        }
+        if result.error:
+            out["error"] = result.error
+        print(json.dumps(out, indent=2))
+        return 0
+
+    out = {
+        "update_available": True,
+        "current_version": result.current_version,
+        "latest_version": result.latest_version,
+        "release_url": result.release_url,
+    }
+
+    if args.install:
+        update = perform_update(
+            current_version=result.current_version,
+            target_version=result.latest_version or "",
+        )
+        out["installed"] = update.success
+        if update.error:
+            out["error"] = update.error
+        if update.rolled_back:
+            out["rolled_back"] = True
+        print(json.dumps(out, indent=2))
+        return 0 if update.success else 1
+
+    print(json.dumps(out, indent=2))
+    return 0
+
+
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
@@ -114,6 +189,8 @@ def main() -> int:
         "check": cmd_check,
         "fix": cmd_fix,
         "editors": cmd_editors,
+        "daemon": cmd_daemon,
+        "update": cmd_update,
     }
     handler = dispatch.get(args.command)
     if handler is None:
