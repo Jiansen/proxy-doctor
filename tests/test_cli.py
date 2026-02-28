@@ -28,7 +28,7 @@ class TestCLIHelp(unittest.TestCase):
     def test_version(self):
         r = self._run("--version")
         self.assertEqual(r.returncode, 0)
-        self.assertIn("0.2.0", r.stdout)
+        self.assertIn("0.2.1", r.stdout)
 
     def test_editors(self):
         r = self._run("editors")
@@ -111,6 +111,16 @@ class TestCLIHelp(unittest.TestCase):
         data = json.loads(r.stdout)
         self.assertIn("update_available", data)
         self.assertIn("current_version", data)
+
+    def test_fix_apply_flag_accepted(self):
+        r = self._run("fix", "--apply")
+        # --apply with no stdin should still produce JSON output before apply mode
+        self.assertIn("status", r.stdout)
+
+    def test_fix_help_shows_apply(self):
+        r = self._run("fix", "--help")
+        self.assertEqual(r.returncode, 0)
+        self.assertIn("--apply", r.stdout)
 
 
 if __name__ == "__main__":

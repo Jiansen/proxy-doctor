@@ -25,10 +25,22 @@ from proxy_doctor.editors import list_editors
 mcp = FastMCP(
     "proxy-doctor",
     instructions=(
-        "Diagnose proxy misconfigurations that break AI coding tools. "
-        "Checks system proxy settings, residual proxy values, port health, "
-        "editor configuration, and GUI environment variables. "
-        "This tool is READ-ONLY — it does not modify any system or editor settings. "
+        "Diagnose proxy misconfigurations that break AI coding tools (Cursor, VS Code, Windsurf). "
+        "When your user reports 'browser works but AI editor doesn't', call diagnose_proxy() first.\n\n"
+        "TRUST MODEL: All MCP tools are READ-ONLY. They inspect but never modify system or editor settings.\n\n"
+        "WORKFLOW:\n"
+        "1. Call diagnose_proxy() to get full 5-layer diagnosis\n"
+        "2. If unhealthy, call list_fixes() to get remediation commands\n"
+        "3. Present commands to user for approval — do NOT run them without consent\n"
+        "4. If user approves, they can run: proxy-doctor fix --apply (interactive per-fix confirmation)\n\n"
+        "INSTALL (if not already available):\n"
+        "  pip install proxy-doctor[mcp]\n"
+        "  # Find the right Python: python3 -c \"import sys; print(sys.executable)\"\n"
+        "  # Add to ~/.cursor/mcp.json with that path as \"command\"\n\n"
+        "CLI FALLBACK (if MCP unavailable, zero extra dependencies):\n"
+        "  proxy-doctor check          # JSON diagnosis\n"
+        "  proxy-doctor fix            # show fixes (read-only)\n"
+        "  proxy-doctor fix --apply    # apply with per-fix y/N prompt\n\n"
         "Feedback: https://github.com/Jiansen/proxy-doctor/issues/new"
     ),
 )
@@ -62,8 +74,12 @@ def diagnose_proxy(editor: str = "cursor") -> dict:
 def list_fixes(editor: str = "cursor") -> dict:
     """Get recommended fixes for proxy issues affecting an AI editor.
 
-    Returns only the diagnosis summary and fix list, without full evidence.
-    Each fix includes a command to run and its risk level.
+    Returns the diagnosis summary and fix list, without full evidence.
+    Each fix includes a shell command and its risk level (low/medium/high).
+
+    IMPORTANT: These commands are for the user to review and approve.
+    Do NOT execute them without user consent. For interactive application,
+    suggest: proxy-doctor fix --apply
 
     Args:
         editor: Editor to diagnose. Options: cursor, vscode, windsurf. Default: cursor.

@@ -77,17 +77,47 @@ Add to your MCP configuration (e.g., Cursor `~/.cursor/mcp.json`):
 {
   "mcpServers": {
     "proxy-doctor": {
-      "command": "python",
+      "command": "python3",
       "args": ["-m", "proxy_doctor.mcp_server"]
     }
   }
 }
 ```
 
+> **Note:** `"command"` must point to the Python where `proxy-doctor[mcp]` is installed. If `python3` doesn't work, use the full path (run `which python3` or `python3 -c "import sys; print(sys.executable)"` to find it).
+
 Your AI agent can then call:
-- `diagnose_proxy(editor="cursor")` — full 5-layer diagnosis
-- `list_fixes(editor="cursor")` — just the recommended fixes
+- `diagnose_proxy(editor="cursor")` — full 5-layer diagnosis with evidence
+- `list_fixes(editor="cursor")` — recommended fixes with executable commands
 - `supported_editors()` — list available editors
+
+### For AI Agents: Quick Install
+
+If you are an AI agent setting up proxy-doctor for your user:
+
+```bash
+# 1. Install
+pip install proxy-doctor[mcp]
+
+# 2. Find the Python path
+python3 -c "import sys; print(sys.executable)"
+
+# 3. Add to ~/.cursor/mcp.json (use the path from step 2)
+# {
+#   "mcpServers": {
+#     "proxy-doctor": {
+#       "command": "<python-path-from-step-2>",
+#       "args": ["-m", "proxy_doctor.mcp_server"]
+#     }
+#   }
+# }
+
+# 4. If MCP is not available, use CLI directly (zero dependencies):
+proxy-doctor check          # JSON output
+proxy-doctor check --human  # human-readable
+proxy-doctor fix            # show fixes (read-only)
+proxy-doctor fix --apply    # apply fixes (asks for confirmation)
+```
 
 ### Daemon Mode (v0.2+)
 
@@ -181,16 +211,30 @@ proxy-doctor identifies three failure patterns:
 - **Linux**: Partial (editor config + environment variables; no networksetup)
 - **Windows**: Not yet supported
 
-## Permissions
+## Trust & Permissions
 
-proxy-doctor is designed to be safe and transparent:
+proxy-doctor follows a **read-only by default** design. No system changes are made unless you explicitly opt in.
+
+### Default Behavior (read-only)
 
 | Access | What | Why |
 |--------|------|-----|
 | **Reads** | System proxy settings, editor config files, launchctl env vars, local port status | Core diagnostic functionality |
 | **Writes** | `~/.proxy-doctor/` only (cache, logs, update state) | Daemon state persistence |
 | **Network** | `pypi.org` (version check only) | Auto-update feature |
-| **Does NOT** | Modify proxy settings, change editor config, send telemetry, access credentials | By design — read-only diagnosis |
+| **Does NOT** | Modify proxy settings, change editor config, send telemetry, access credentials | By design |
+
+### Opt-in Fix Application
+
+`proxy-doctor fix` shows the recommended commands but **does not execute them**.
+
+To apply fixes, use `proxy-doctor fix --apply`:
+- Each fix is shown with its command and risk level
+- You are prompted **individually** for each fix (`[y/N]`)
+- Default is **No** — nothing runs unless you type `y`
+- You can abort at any time with Ctrl+C
+
+This two-step model lets AI agents safely call `list_fixes()` via MCP to see what needs fixing, then present the commands to users for approval.
 
 ## Feedback
 

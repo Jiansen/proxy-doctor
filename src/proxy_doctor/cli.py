@@ -46,6 +46,8 @@ def build_parser() -> argparse.ArgumentParser:
     p_fix = sub.add_parser("fix", help="Show recommended fixes")
     p_fix.add_argument("--editor", default="cursor",
                        help="Editor to check (default: cursor)")
+    p_fix.add_argument("--apply", action="store_true",
+                       help="Apply fixes interactively (asks confirmation for each)")
 
     # editors
     sub.add_parser("editors", help="List supported editors")
@@ -109,7 +111,54 @@ def cmd_fix(args: argparse.Namespace) -> int:
         ],
     }
     print(json.dumps(fixes_out, indent=2))
+
+    if getattr(args, "apply", False):
+        _apply_fixes(report.diagnosis.fixes)
+
     return 0 if report.diagnosis.status == "healthy" else 1
+
+
+def _apply_fixes(fixes: list) -> None:
+    """Apply fixes interactively with per-command confirmation."""
+    import subprocess
+
+    print("\n--- Apply Mode ---", file=sys.stderr)
+    print("Each fix will ask for confirmation before executing.\n", file=sys.stderr)
+
+    for fix in fixes:
+        if not fix.command:
+            print(f"  [skip] {fix.fix_id}: no executable command", file=sys.stderr)
+            continue
+
+        print(f"  Fix: {fix.description}", file=sys.stderr)
+        print(f"  Command: {fix.command}", file=sys.stderr)
+        print(f"  Risk: {fix.risk}", file=sys.stderr)
+
+        try:
+            answer = input("  Apply this fix? [y/N] ").strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print("\n  Aborted.", file=sys.stderr)
+            return
+
+        if answer != "y":
+            print("  Skipped.\n", file=sys.stderr)
+            continue
+
+        try:
+            result = subprocess.run(
+                fix.command, shell=True, capture_output=True, text=True, timeout=30,
+            )
+            if result.returncode == 0:
+                print(f"  [ok] Applied successfully.\n", file=sys.stderr)
+            else:
+                print(f"  [fail] Exit code {result.returncode}", file=sys.stderr)
+                if result.stderr:
+                    print(f"  stderr: {result.stderr.strip()}", file=sys.stderr)
+                print(file=sys.stderr)
+        except subprocess.TimeoutExpired:
+            print("  [fail] Command timed out (30s).\n", file=sys.stderr)
+        except OSError as e:
+            print(f"  [fail] {e}\n", file=sys.stderr)
 
 
 def cmd_editors(_args: argparse.Namespace) -> int:
