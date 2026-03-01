@@ -9,6 +9,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Jiansen/proxy-doctor" alt="License"></a>
   <img src="https://img.shields.io/badge/platform-macOS-blue" alt="Platform">
   <img src="https://img.shields.io/badge/python-%3E%3D3.9-blue" alt="Python">
+  <a href="https://github.com/Jiansen/proxy-doctor/stargazers"><img src="https://img.shields.io/github/stars/Jiansen/proxy-doctor?style=social" alt="GitHub Stars"></a>
 </p>
 
 **Diagnose proxy misconfigurations that break AI coding tools.**
@@ -92,6 +93,10 @@ Your AI agent can then call:
 - `supported_editors()` — list available editors
 
 ### For AI Agents: Quick Install
+
+**One-liner** (paste this to your AI agent):
+
+> Install proxy-doctor (`pip install proxy-doctor[mcp]`) and add it to your MCP config with command `python -m proxy_doctor.mcp_server`. Then use the `diagnose_proxy` tool to check proxy health.
 
 If you are an AI agent setting up proxy-doctor for your user:
 
@@ -269,6 +274,12 @@ make test
 # Run linter
 make lint
 ```
+
+---
+
+If proxy-doctor helped you fix a proxy issue, consider giving it a star on GitHub — it helps others discover the tool.
+
+[![Star on GitHub](https://img.shields.io/github/stars/Jiansen/proxy-doctor?style=social)](https://github.com/Jiansen/proxy-doctor)
 
 ## License
 
